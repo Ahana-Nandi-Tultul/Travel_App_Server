@@ -35,7 +35,6 @@ app.post('/jwt', (req, res) => {
 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-// const uri = "mongodb+srv://travily:YYBdYKfYz9sLoWoT@cluster0.epxwefd.mongodb.net/?retryWrites=true&w=majority";
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.epxwefd.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -53,6 +52,9 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db('travily').collection('users');
+    const categoriesCollection = client.db('travily').collection('categories');
+    const destinationsCollection = client.db('travily').collection('destination');
+    const toursCollection = client.db('travily').collection('tours');
 
     app.post("/users", async(req, res) => {
         const newUser = req.body;
@@ -64,7 +66,29 @@ async function run() {
         }
         const result = await usersCollection.insertOne(newUser);
         res.send(result);
+    });
+
+    app.get("/categories", async(req, res) => {
+      const query = { active : 1};
+      const categories = await categoriesCollection.find(query).toArray();
+      res.send(categories);
+    });
+
+    app.get("/destinations", async(req, res) => {
+      const destinations = await destinationsCollection.find().toArray();
+      res.send(destinations); 
+    });
+
+    app.get("/top_destinations", async(req, res) => {
+      const top_destinations = await destinationsCollection.find({}, { projection: { _id: 1, 'name': 1, 'front-image': 1 } }).toArray();
+      res.send(top_destinations);
+    });
+
+    app.get("/features_tours", async(req, res) => {
+      const features_tours = await toursCollection.find().toArray();
+      res.send(features_tours);
     })
+    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
