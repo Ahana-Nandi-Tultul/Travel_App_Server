@@ -55,6 +55,7 @@ async function run() {
     const categoriesCollection = client.db('travily').collection('categories');
     const destinationsCollection = client.db('travily').collection('destination');
     const toursCollection = client.db('travily').collection('tours');
+    const travel_guidesCollection = client.db('travily').collection('travel_guide');
 
     app.post("/users", async(req, res) => {
         const newUser = req.body;
@@ -87,7 +88,17 @@ async function run() {
     app.get("/features_tours", async(req, res) => {
       const features_tours = await toursCollection.find().toArray();
       res.send(features_tours);
-    })
+    });
+
+    app.get("/travel_guides", async(req, res) => {
+      const travel_guides = await travel_guidesCollection.find({}, { projection: { _id: 1, 'title': 1, 'image': 1, 'writer' : 1,
+    'date' : 1 } }).sort({ date: 1 }).limit(4).toArray();
+      res.send(travel_guides);
+    });
+    app.get("/travel_images", async(req, res) => {
+      const travel_images = await travel_guidesCollection.find({}, { projection: { _id: 1,'image': 1 } }).limit(5).toArray();
+      res.send(travel_images);
+    });
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
