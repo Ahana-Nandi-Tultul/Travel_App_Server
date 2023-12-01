@@ -34,7 +34,7 @@ app.post('/jwt', (req, res) => {
 });
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.epxwefd.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -75,6 +75,7 @@ async function run() {
       res.send(categories);
     });
 
+    // destination
     app.get("/destinations", async(req, res) => {
       const destinations = await destinationsCollection.find().toArray();
       res.send(destinations); 
@@ -83,6 +84,18 @@ async function run() {
     app.get("/top_destinations", async(req, res) => {
       const top_destinations = await destinationsCollection.find({}, { projection: { _id: 1, 'name': 1, 'front-image': 1 } }).toArray();
       res.send(top_destinations);
+    });
+
+    app.get("/all_destinations", async(req, res) => {
+      const all_destinations = await destinationsCollection.find({}, { projection: { _id: 1, 'name': 1, 'front-image': 1 } }).toArray();
+      res.send(all_destinations);
+    });
+
+    app.get("/one_destination/:id", async(req, res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const one_destination = await destinationsCollection.findOne(query);
+      res.send(one_destination);
     });
 
     app.get("/features_tours", async(req, res) => {
